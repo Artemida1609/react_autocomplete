@@ -3,14 +3,18 @@ import './App.scss';
 import { peopleFromServer } from './data/people';
 import debounce from 'lodash.debounce';
 
-export const App: React.FC = () => {
+type DelayProp = {
+  delay?: number;
+};
+
+export const App: React.FC<DelayProp> = ({ delay = 300 }) => {
   const [query, setQuery] = useState('');
-  const [apliedQuery, setApliedQuery] = useState('');
+  const [appliedQuery, setAppliedQuery] = useState('');
   const [focused, setFocused] = useState(false);
 
   const title = [...peopleFromServer].find(person => person.name === query);
 
-  const applyQuery = useMemo(() => debounce(setApliedQuery, 300), []);
+  const applyQuery = useMemo(() => debounce(setAppliedQuery, delay), [delay]);
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -18,8 +22,10 @@ export const App: React.FC = () => {
   };
 
   const filteredNames = useMemo(() => {
-    return peopleFromServer.filter(person => person.name.includes(apliedQuery));
-  }, [apliedQuery]);
+    return peopleFromServer.filter(person =>
+      person.name.includes(appliedQuery.trim()),
+    );
+  }, [appliedQuery]);
 
   return (
     <div className="container">
@@ -62,7 +68,7 @@ export const App: React.FC = () => {
                       data-cy="suggestion-item"
                       onClick={() => {
                         setQuery(item.name);
-                        setApliedQuery(item.name);
+                        setAppliedQuery(item.name);
                       }}
                     >
                       <p className="has-text-link">{item.name}</p>
@@ -72,7 +78,7 @@ export const App: React.FC = () => {
               </div>
             </div>
           ) : (
-            apliedQuery !== '' && (
+            appliedQuery !== '' && (
               <div
                 className="
             notification
